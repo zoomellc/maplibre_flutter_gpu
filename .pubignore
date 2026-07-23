@@ -1,0 +1,25 @@
+# pub.dev publishing is disabled in pubspec.yaml. If it is enabled later,
+# revisit this list together with the prebuilt-library distribution plan.
+
+# Example app (available on GitHub, not needed on pub.dev)
+examples/
+
+# Native implementation source
+vendor/
+
+# Local / intermediate build products
+build/
+build-ios*/
+build-linux/
+.dart_tool/
+
+# Large prebuilts currently distributed through the GitHub repository
+native/*.so
+native/*.a
+native/*.dylib
+**/*.a
+
+# Tooling / IDE
+.idea/
+*.iml
+.DS_Store

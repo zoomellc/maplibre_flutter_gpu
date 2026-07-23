@@ -1,0 +1,8 @@
+// MapLibre Native bridge configuration shared by every macOS example.
+MACOSX_DEPLOYMENT_TARGET = 14.3
+
+MAPLIBRE_LIBRARY_DIR = $(PROJECT_DIR)/../../_shared/macos/Libraries
+LIBRARY_SEARCH_PATHS = $(inherited) $(MAPLIBRE_LIBRARY_DIR)
+
+MAPLIBRE_LDFLAGS = -lmbgl-vendor-parsedate -lmlt-cpp -lmbgl-vendor-csscolorparser -lmbgl-harfbuzz -lmbgl-freetype -lmbgl-vendor-icu -lsqlite3 -lz -lc++ -framework CoreGraphics -framework CoreLocation -framework CoreImage -framework SystemConfiguration -framework AppKit -ObjC
+OTHER_LDFLAGS = $(inherited) -force_load $(MAPLIBRE_LIBRARY_DIR)/libmaplibre_bridge_macos.a -force_load $(MAPLIBRE_LIBRARY_DIR)/libmbgl-core.a $(MAPLIBRE_LDFLAGS) -Wl,-export_dynamic

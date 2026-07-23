@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Analyze, test, and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.44.6'
+          channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
+
+      - name: Verify prebuilt native libraries
+        run: sha256sum --check NATIVE_ARTIFACTS.sha256
+
+      - name: Get package dependencies
+        run: flutter pub get
+
+      - name: Get example dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          for dir in \
+            examples/controller_api \
+            examples/flutter_markers \
+            examples/gpu_context
+          do
+            (cd "$dir" && flutter pub get)
+          done
+
+      - name: Analyze package
+        run: flutter analyze
+
+      - name: Test package
+        run: flutter test --no-pub
+
+      - name: Check examples
+        shell: bash
+        run: |
+          set -euo pipefail
+          for dir in \
+            examples/controller_api \
+            examples/flutter_markers \
+            examples/gpu_context
+          do
+            (
+              cd "$dir"
+              flutter analyze
+              flutter test --no-pub
+            )
+          done
+
+      - name: Build Android example
+        working-directory: examples/controller_api
+        run: flutter build apk --debug --no-pub

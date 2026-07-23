@@ -1,0 +1,72 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+examples/*/build/
+examples/*/.dart_tool/
+examples/*/.flutter-plugins-dependencies
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Local MapLibre build trees (not the prebuilt Libraries)
+build-ios/
+build-ios-fluttergpu/
+build-ios-fluttergpu-device/
+build-ios-fluttergpu-ninja/
+build-ios-fluttergpu-sim/
+build-android-fluttergpu-*/
+build-linux/
+build-macos-fluttergpu/
+build-macos-fluttergpu-arm64/
+build-macos-fluttergpu-x86_64/
+
+# Native implementation and build tooling live in the private development
+# repository. This public repository intentionally carries prebuilts only.
+/vendor/
+/.gitmodules
+/tool/gen_abi.dart
+/native/*
+!/native/*.so
+!/native/*.a
+!/native/*.dylib
+
+# Keep the declared shader asset directory present in clean checkouts.
+!/build/
+/build/*
+!/build/shaderbundles/
+/build/shaderbundles/*
+!/build/shaderbundles/.gitkeep

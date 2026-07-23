@@ -1,0 +1,27 @@
+name: maplibre_flutter_gpu_context_example
+description: Public Flutter GPU context example for maplibre_flutter_gpu.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.1
+  flutter: '>=3.38.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_gpu:
+    sdk: flutter
+  hooks: ^1.0.0
+  maplibre_flutter_gpu:
+    path: ../../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/shaderbundles/
