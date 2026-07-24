@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:args/args.dart';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
+import 'package:visual_e2e_runner/src/android_drive.dart';
 import 'package:visual_e2e_runner/visual_e2e_runner.dart';
 
 const _maplibreGlVersion = '0.26.2';
@@ -50,6 +51,18 @@ Future<int> _run(List<String> arguments) async {
       defaultsTo: 'e2e/visual/report',
       help: 'Report output directory, relative to repository root.',
     )
+    ..addOption(
+      'maplibre-gl-apk',
+      help:
+          'Prebuilt maplibre_gl integration-test APK, relative to the '
+          'repository root.',
+    )
+    ..addOption(
+      'gpu-apk',
+      help:
+          'Prebuilt maplibre_flutter_gpu integration-test APK, relative to '
+          'the repository root.',
+    )
     ..addFlag(
       'include-antialiasing',
       defaultsTo: false,
@@ -87,6 +100,21 @@ Future<int> _run(List<String> arguments) async {
   final outputDirectory = Directory(outputPath);
   final imagesDirectory = Directory(path.join(outputPath, 'images'));
   final logsDirectory = Directory(path.join(outputPath, 'logs'));
+  final maplibreGlApk = _resolvePrebuiltApk(
+    parsed.option('maplibre-gl-apk'),
+    repositoryRoot,
+  );
+  final gpuApk = _resolvePrebuiltApk(parsed.option('gpu-apk'), repositoryRoot);
+  if ((maplibreGlApk == null) != (gpuApk == null)) {
+    throw const FormatException(
+      '--maplibre-gl-apk and --gpu-apk must be provided together',
+    );
+  }
+  for (final apk in <String?>[maplibreGlApk, gpuApk]) {
+    if (apk != null && !await File(apk).exists()) {
+      throw FormatException('prebuilt APK does not exist: $apk');
+    }
+  }
   await imagesDirectory.create(recursive: true);
   await logsDirectory.create(recursive: true);
 
@@ -119,11 +147,13 @@ Future<int> _run(List<String> arguments) async {
         label: 'maplibre_gl',
         root: path.join(repositoryRoot, 'e2e/visual/maplibre_gl_app'),
         applicationId: 'dev.maplibre.fluttergpu.e2e.visual_e2e_maplibre_gl',
+        applicationBinary: maplibreGlApk,
       ),
       _VisualApplication(
         label: 'maplibre_flutter_gpu',
         root: path.join(repositoryRoot, 'e2e/visual/gpu_app'),
         applicationId: 'dev.maplibre.fluttergpu.e2e.visual_e2e_gpu',
+        applicationBinary: gpuApk,
       ),
     ];
 
@@ -138,18 +168,20 @@ Future<int> _run(List<String> arguments) async {
         ),
       );
       stdout.writeln('[${application.label}] running Android integration test');
+      if (application.applicationBinary != null) {
+        stdout.writeln(
+          '[${application.label}] using prebuilt APK: '
+          '${application.applicationBinary}',
+        );
+      }
       try {
         await _runLogged(
           flutter,
-          <String>[
-            'drive',
-            '--driver=test_driver/integration_test.dart',
-            '--target=integration_test/visual_test.dart',
-            '--device-id=$device',
-            '--dart-define=VISUAL_E2E_SCENE=$sceneId',
-            '--no-pub',
-            '--no-dds',
-          ],
+          buildAndroidDriveArguments(
+            device: device,
+            sceneId: sceneId,
+            applicationBinary: application.applicationBinary,
+          ),
           workingDirectory: application.root,
           environment: <String, String>{
             'VISUAL_E2E_SCREENSHOT_DIR': imagesDirectory.path,
@@ -214,6 +246,13 @@ Future<int> _run(List<String> arguments) async {
     ..writeln('Strict similarity: $strictSimilarity%')
     ..writeln('Report: $reportPath');
   return comparison.similarity >= minimumSimilarity ? 0 : 1;
+}
+
+String? _resolvePrebuiltApk(String? option, String repositoryRoot) {
+  if (option == null) return null;
+  return path.isAbsolute(option)
+      ? path.normalize(option)
+      : path.normalize(path.join(repositoryRoot, option));
 }
 
 double _parseFraction(String raw, String optionName) {
@@ -467,9 +506,11 @@ class _VisualApplication {
     required this.label,
     required this.root,
     required this.applicationId,
+    required this.applicationBinary,
   });
 
   final String label;
   final String root;
   final String applicationId;
+  final String? applicationBinary;
 }
