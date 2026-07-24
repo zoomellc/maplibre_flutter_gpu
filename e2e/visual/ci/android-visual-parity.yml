@@ -58,6 +58,7 @@ jobs:
           emulator-options: >-
             -no-window
             -gpu swiftshader
+            -feature -Vulkan
             -no-snapshot
             -noaudio
             -no-boot-anim
