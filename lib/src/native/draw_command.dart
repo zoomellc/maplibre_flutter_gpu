@@ -1,8 +1,8 @@
-// Enum constants shared with fluttergpu::DrawCommand (see draw_command.hpp).
+// Enum constants shared with command_export::DrawCommand (see draw_command.hpp).
 // The struct itself is parsed field-by-field in gpu_renderer.dart via raw
 // ByteData offsets — there is no Dart-side struct class.
 
-/// Shader type enum — matches fluttergpu::ShaderType
+/// Shader type enum — matches command_export::ShaderType.
 class ShaderType {
   static const int fill = 0;
   static const int fillOutline = 1;
@@ -20,7 +20,7 @@ class ShaderType {
   static const int unknown = 255;
 }
 
-/// Resolved stencil behavior — matches fluttergpu::StencilModeType.
+/// Resolved stencil behavior — matches command_export::StencilModeType.
 class StencilModeType {
   static const int disabled = 0;
   static const int clippingMask = 1; // Always + Replace, write 0xff
@@ -29,7 +29,7 @@ class StencilModeType {
   static const int clear = 4; // ordered attachment clear control
 }
 
-/// Draw mode enum — matches fluttergpu::DrawModeType
+/// Draw mode enum — matches command_export::DrawModeType.
 class DrawModeType {
   static const int triangles = 0;
   static const int lines = 1;
@@ -37,7 +37,7 @@ class DrawModeType {
   static const int points = 3;
 }
 
-/// Texture sampler filter — matches fluttergpu::TextureFilterType.
+/// Texture sampler filter — matches command_export::TextureFilterType.
 class TextureFilterType {
   static const int nearest = 0;
   static const int linear = 1;

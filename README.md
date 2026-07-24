@@ -129,7 +129,7 @@ SHA-256 checksums are recorded in
 [`NATIVE_ARTIFACTS.sha256`](NATIVE_ARTIFACTS.sha256).
 
 The libraries link against the public
-[Flutter GPU fork of MapLibre Native](https://github.com/zoomellc/maplibre-native).
+[MapLibre Native Command Export fork](https://github.com/zoomellc/maplibre-native).
 Native bridge sources and build scripts will be added with the initial public
 release.
 

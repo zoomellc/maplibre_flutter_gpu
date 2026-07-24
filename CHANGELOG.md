@@ -1,8 +1,8 @@
 ## 0.0.1-dev
 
 * Scaffold package layout for `maplibre_flutter_gpu` (development only).
-* Flutter GPU backend for fill / line / circle / raster / fill-extrusion layers
-  plus Flutter-widget symbol overlay.
+* Flutter GPU renderer backed by MapLibre Command Export for fill / line /
+  circle / raster / fill-extrusion layers, plus Flutter-widget symbol overlay.
 * Optional attribution-button visibility and a compact attribution control.
 * Map rotation gestures now follow the fingers' rotation direction.
 * Pinch zoom suppresses incidental rotation until the native 3° threshold.

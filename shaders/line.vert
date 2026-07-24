@@ -13,7 +13,7 @@ layout(binding = 0) uniform LineDrawableUBO {
     mat4 u_matrix;
     float u_ratio;
     // Interpolation factors (unused: per-feature paint attributes are not
-    // exported by the FlutterGPU backend)
+    // exported by the Command Export backend)
     float u_color_t;
     float u_blur_t;
     float u_opacity_t;

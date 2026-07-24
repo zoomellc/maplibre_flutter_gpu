@@ -82,7 +82,7 @@ class LatLngBounds {
 /// The position of the map "camera" — the view point from which the world
 /// is shown.
 ///
-/// The Flutter GPU backend applies target, zoom, bearing, and tilt.
+/// The Flutter GPU renderer applies target, zoom, bearing, and tilt.
 @immutable
 class CameraPosition {
   /// Creates a camera position.

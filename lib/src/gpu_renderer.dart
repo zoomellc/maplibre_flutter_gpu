@@ -11,7 +11,7 @@ import 'native/maplibre_ffi.dart';
 import 'shaders.dart';
 
 // DrawCommand struct offsets — generated from the C++ ABI locks
-// (FGPU_ABI_OFFSET in draw_command.hpp, see tool/gen_abi.dart). These
+// (COMMAND_EXPORT_ABI_OFFSET in draw_command.hpp, see tool/gen_abi.dart). These
 // aliases keep the render loop readable and can never drift from C++.
 const _oShaderType = DrawCommandAbi.shaderType;
 const _oDrawMode = DrawCommandAbi.drawMode;
@@ -42,7 +42,7 @@ const _oStencilReference = DrawCommandAbi.stencilReference;
 const _oStencilMode = DrawCommandAbi.stencilMode;
 const _cmdStruct = DrawCommandAbi.size;
 
-// DrawCommand::flags mirrors mbgl::fluttergpu::DrawCommandFlags.
+// DrawCommand::flags mirrors mbgl::command_export::DrawCommandFlags.
 const _flagCrossTileMerged = 1 << 0;
 const _flagFillExtrusionDataDriven = 1 << 1;
 const _flagFillColorDataDriven = 1 << 2;

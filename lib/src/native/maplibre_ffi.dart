@@ -1047,7 +1047,7 @@ class MaplibreBridge {
   int Function()? _getLabelsVersion;
   void Function()? _requestLabelExtraction;
 
-  // ── DrawCommand-based FFI (FlutterGPU backend) ──────────────────────
+  // ── DrawCommand-based FFI (Command Export backend) ──────────────────
   _VoidVoidD? _frameBegin;
   _VoidVoidD? _frameEnd;
   _Int32VoidD? _frameGetCommandCount;
