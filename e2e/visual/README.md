@@ -106,8 +106,8 @@ cp e2e/visual/ci/android-visual-parity.yml \
 ```
 
 The job uses JDK 21 and one API 36 `x86_64` emulator from the stable channel
-with the emulator's current software-rendering backend and Vulkan disabled,
-then uploads the report even when the similarity gate fails. The Actions job
+with SwiftShader's ANGLE-backed software renderer and guest Vulkan disabled.
+It uploads the report even when the similarity gate fails. The Actions job
 summary shows the comparison metrics and links to the downloadable artifact,
 which contains the self-contained HTML report, both screenshots, the diff, and
 capture logs.
