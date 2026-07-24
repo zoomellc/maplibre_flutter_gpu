@@ -52,13 +52,12 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_7
-          emulator-build: 13025442 # Emulator 35.4.9, qualified with SwiftShader
           cores: 4
           ram-size: 4096M
           disable-animations: true
           emulator-options: >-
             -no-window
-            -gpu swiftshader_indirect
+            -gpu swiftshader
             -no-snapshot
             -noaudio
             -no-boot-anim
