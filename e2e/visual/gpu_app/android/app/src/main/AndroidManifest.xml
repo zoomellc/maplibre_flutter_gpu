@@ -3,6 +3,9 @@
         android:label="visual_e2e_gpu"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="io.flutter.embedding.android.ImpellerBackend"
+            android:value="opengles" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

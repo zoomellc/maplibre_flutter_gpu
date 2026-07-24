@@ -110,3 +110,5 @@ with the SwiftShader OpenGL ES backend and Vulkan disabled, then uploads the
 report even when the similarity gate fails. The Actions job summary shows the
 comparison metrics and links to the downloadable artifact, which contains the
 self-contained HTML report, both screenshots, the diff, and capture logs.
+The GPU fixture also selects Impeller's OpenGL ES backend explicitly in debug
+and profile builds so emulator runs cannot auto-select Vulkan.
