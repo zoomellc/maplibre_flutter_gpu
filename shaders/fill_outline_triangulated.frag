@@ -18,8 +18,11 @@ in float v_gamma_scale;
 in float v_dpr;
 
 void main() {
-    float dist = length(v_normal) * v_width;
-    float blur2 = (1.0 / v_dpr) * v_gamma_scale;
-    float alpha = clamp(min(dist + blur2, v_width - dist) / blur2, 0.0, 1.0);
+    float dist_line = length(v_normal) * v_width;
+    float dist_px =
+        dist_line * v_dpr / max(v_gamma_scale, 0.000001);
+    // Match FillOutlineShader's OpenGL physical-pixel coverage curve. Unlike
+    // the generic triangulated-line equation, this has no opaque plateau.
+    float alpha = 1.0 - smoothstep(0.0, 1.0, dist_px);
     frag_color = props.outline_color * (alpha * props.opacity);
 }

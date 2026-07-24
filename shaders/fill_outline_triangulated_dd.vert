@@ -60,7 +60,7 @@ vec4 decode_color(const vec2 encoded_color) {
 
 void main() {
     float dpr = max(u_device_pixel_ratio, 0.000001);
-    float antialiasing = 1.0 / dpr / 2.0;
+    float antialiasing = 0.5 / dpr;
 
     vec2 a_extrude = a_data.xy - 128.0;
 
@@ -69,6 +69,8 @@ void main() {
     normal.y = normal.y * 2.0 - 1.0;
     v_normal = normal;
 
+    // Keep enough transparent support for perspective-compressed outlines.
+    // The fragment shader determines visible coverage in physical pixels.
     float halfwidth = 0.5;
     float outset = halfwidth + antialiasing;
     vec2 dist = outset * a_extrude * scale;

@@ -12,8 +12,9 @@ in vec4 v_outline_color;
 in float v_opacity;
 
 void main() {
-    float dist = length(v_normal) * v_width;
-    float blur2 = (1.0 / v_dpr) * v_gamma_scale;
-    float alpha = clamp(min(dist + blur2, v_width - dist) / blur2, 0.0, 1.0);
+    float dist_line = length(v_normal) * v_width;
+    float dist_px =
+        dist_line * v_dpr / max(v_gamma_scale, 0.000001);
+    float alpha = 1.0 - smoothstep(0.0, 1.0, dist_px);
     frag_color = v_outline_color * (alpha * v_opacity);
 }

@@ -1189,6 +1189,17 @@ class GpuFrameRenderer {
   /// a catchable error we permanently fall back to depth-less rendering.
   static bool _depthStencilUnsupported = false;
 
+  void _disableDepthStencil(Object error) {
+    _depthStencilUnsupported = true;
+    _mainDepthStencilTexture = null;
+    _mainDepthStencilWidth = 0;
+    _mainDepthStencilHeight = 0;
+    debugPrint(
+      '[GpuRenderer] depth/stencil attachment unavailable, '
+      'falling back to unclipped depth-less rendering: $error',
+    );
+  }
+
   /// MapLibre shaders produce premultiplied RGBA. Keep the same blend
   /// convention here so every pipeline, including circle and fill-extrusion,
   /// applies opacity exactly once.
@@ -1218,15 +1229,24 @@ class GpuFrameRenderer {
       _mainDepthStencilHeight = colorTexture.height;
       return depth;
     } catch (e) {
-      _depthStencilUnsupported = true;
-      _mainDepthStencilTexture = null;
-      debugPrint(
-        '[GpuRenderer] depth/stencil attachment unavailable, '
-        'falling back to unclipped depth-less rendering: $e',
-      );
+      _disableDepthStencil(e);
       return null;
     }
   }
+
+  /// Returns the shared depth/stencil texture that must be attached to the
+  /// frame's initial clear pass.
+  ///
+  /// Impeller's OpenGLES backend caches one framebuffer for a color texture.
+  /// If that framebuffer is first created without depth/stencil, attaching
+  /// depth/stencil only to later passes can leave the cached framebuffer
+  /// incomplete for MapLibre's clipping masks.
+  gpu.Texture? prepareDepthStencilTexture(gpu.Texture colorTexture) =>
+      _depthStencilTextureFor(colorTexture);
+
+  /// Permanently selects the depth-less fallback after the backend rejects an
+  /// initial render pass that uses the prepared depth/stencil texture.
+  void disableDepthStencil(Object error) => _disableDepthStencil(error);
 
   /// Draws [items] on [texture] in a new render pass with LoadAction.load.
   /// Flutter GPU can't reliably switch pipelines mid-pass, so each pipeline
@@ -1393,6 +1413,7 @@ class GpuFrameRenderer {
   int renderFrame(
     gpu.RenderPass rp, {
     gpu.Texture? texture,
+    gpu.Texture? initialDepthStencilTexture,
     double? logicalWidth,
     double? logicalHeight,
   }) {
@@ -1400,6 +1421,7 @@ class GpuFrameRenderer {
       return _renderFrameImpl(
         rp,
         texture: texture,
+        initialDepthStencilTexture: initialDepthStencilTexture,
         logicalWidth: logicalWidth,
         logicalHeight: logicalHeight,
       );
@@ -1425,6 +1447,7 @@ class GpuFrameRenderer {
   int _renderFrameImpl(
     gpu.RenderPass rp, {
     gpu.Texture? texture,
+    gpu.Texture? initialDepthStencilTexture,
     double? logicalWidth,
     double? logicalHeight,
   }) {
@@ -2197,10 +2220,12 @@ class GpuFrameRenderer {
                 drawCommandUsesDepth(e.fl) ||
                 e.stencilMode != StencilModeType.disabled,
           )
-          ? _depthStencilTextureFor(texture)
+          ? initialDepthStencilTexture ?? _depthStencilTextureFor(texture)
           : null;
 
-      var attachmentInitialized = false;
+      var attachmentInitialized =
+          mainDepthStencilTexture != null &&
+          identical(mainDepthStencilTexture, initialDepthStencilTexture);
       var cursor = 0;
       while (cursor < es.length) {
         final first = es[cursor];

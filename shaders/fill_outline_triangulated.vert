@@ -1,6 +1,6 @@
 // MapLibre triangulated fill outline. Flutter GPU has no configurable native
-// line width, so the outline must be expanded into triangles to preserve the
-// upstream 2px antialiased edge.
+// line width, so the outline is expanded into triangles. The fragment shader
+// applies the OpenGL fill-outline coverage curve in physical-pixel space.
 #version 460 core
 
 #define scale 0.015873016
@@ -28,7 +28,7 @@ out float v_gamma_scale;
 out float v_dpr;
 void main() {
     float dpr = max(u_device_pixel_ratio, 0.000001);
-    float antialiasing = 1.0 / dpr / 2.0;
+    float antialiasing = 0.5 / dpr;
 
     vec2 a_extrude = a_data.xy - 128.0;
 
@@ -37,6 +37,9 @@ void main() {
     normal.y = normal.y * 2.0 - 1.0;
     v_normal = normal;
 
+    // Retain MapLibre's wider triangulated support geometry. Pixels outside
+    // the OpenGL coverage radius become transparent in the fragment shader;
+    // the extra support prevents clipping after perspective compression.
     float halfwidth = 0.5;
     float outset = halfwidth + antialiasing;
     vec2 dist = outset * a_extrude * scale;

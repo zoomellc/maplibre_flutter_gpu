@@ -1,0 +1,115 @@
+name: Android visual parity
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-visual-parity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual-parity:
+    name: maplibre_gl reference vs GPU
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.44.6'
+          channel: stable
+          cache: true
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' |
+            sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Capture and compare Android renderers
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          emulator-build: 13025442 # Emulator 35.4.9, qualified with SwiftShader
+          cores: 4
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: >-
+            -no-window
+            -gpu swiftshader_indirect
+            -no-snapshot
+            -noaudio
+            -no-boot-anim
+            -camera-back none
+          script: ./e2e/visual/run_android.sh
+
+      - name: Upload visual report
+        id: visual-report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: android-visual-parity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e/visual/report/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Add visual result to job summary
+        if: always()
+        shell: bash
+        env:
+          ARTIFACT_URL: ${{ steps.visual-report.outputs.artifact-url }}
+        run: |
+          set -euo pipefail
+          results='e2e/visual/report/results.json'
+          {
+            echo '## Android visual parity'
+            echo
+            if [[ -f "$results" ]]; then
+              status="$(jq -r '.status' "$results")"
+              similarity="$(jq -r \
+                '(.comparison.similarity * 100000 | round) / 1000' \
+                "$results")"
+              strict_similarity="$(jq -r \
+                '(.comparison.strictSimilarity * 100000 | round) / 1000' \
+                "$results")"
+              required="$(jq -r \
+                '(.minimumSimilarity * 100000 | round) / 1000' \
+                "$results")"
+              mismatches="$(jq -r '.comparison.mismatchPixelCount' "$results")"
+              echo '| Metric | Value |'
+              echo '| --- | ---: |'
+              echo "| Result | \`$status\` |"
+              echo "| AA-adjusted similarity | \`$similarity%\` |"
+              echo "| Required | \`$required%\` |"
+              echo "| Strict similarity | \`$strict_similarity%\` |"
+              echo "| Substantial mismatches | \`$mismatches\` |"
+            else
+              echo 'Comparison report was not produced. Inspect the uploaded logs.'
+            fi
+            if [[ -n "$ARTIFACT_URL" ]]; then
+              echo
+              echo "[Download HTML report, both screenshots, diff, and logs]($ARTIFACT_URL)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

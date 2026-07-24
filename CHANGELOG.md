@@ -13,6 +13,13 @@
 * Android API 29+ support through Impeller/OpenGLES, with `arm64-v8a` and
   `x86_64` bridge prebuilts, a reproducible native build script, and Android
   projects for all three examples.
+* Android visual parity E2E suite that compares the GPU renderer with a pinned
+  `maplibre_gl` reference using a shared offline scene, anti-alias-aware
+  similarity scoring, and an HTML screenshot report.
+* Android Impeller/OpenGLES rendering now establishes depth/stencil on the
+  initial pass so MapLibre tile clipping survives framebuffer caching.
+* Triangulated fill outlines now follow MapLibre's physical-pixel
+  anti-aliasing curve.
 * macOS desktop support with shared universal arm64/x86_64 native archives.
 * **Not a production release.** This repository is public primarily so GitHub
   Actions can run against it. A real public release will use a new repository

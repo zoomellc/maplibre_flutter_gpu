@@ -1329,18 +1329,44 @@ class _MapGpuPainter extends CustomPainter {
         }
         final texture = resources.textures[idx];
         final clearColor = bridge.frameGetClearColor();
-        final renderTarget = gpu.RenderTarget.singleColor(
+        var depthStencilTexture = gpuRenderer.prepareDepthStencilTexture(
+          texture,
+        );
+        gpu.RenderTarget initialRenderTarget() => gpu.RenderTarget.singleColor(
           gpu.ColorAttachment(
             texture: texture,
             clearValue: maplibreClearValue(clearColor),
           ),
+          depthStencilAttachment: depthStencilTexture == null
+              ? null
+              : gpu.DepthStencilAttachment(
+                  texture: depthStencilTexture,
+                  depthLoadAction: gpu.LoadAction.clear,
+                  depthStoreAction: gpu.StoreAction.store,
+                  depthClearValue: 1.0,
+                  stencilLoadAction: gpu.LoadAction.clear,
+                  stencilStoreAction: gpu.StoreAction.store,
+                  stencilClearValue: 0,
+                ),
         );
-        final commandBuffer = gpu.gpuContext.createCommandBuffer();
-        final renderPass = commandBuffer.createRenderPass(renderTarget);
+
+        late gpu.CommandBuffer commandBuffer;
+        late gpu.RenderPass renderPass;
+        try {
+          commandBuffer = gpu.gpuContext.createCommandBuffer();
+          renderPass = commandBuffer.createRenderPass(initialRenderTarget());
+        } catch (e) {
+          if (depthStencilTexture == null) rethrow;
+          gpuRenderer.disableDepthStencil(e);
+          depthStencilTexture = null;
+          commandBuffer = gpu.gpuContext.createCommandBuffer();
+          renderPass = commandBuffer.createRenderPass(initialRenderTarget());
+        }
         gpuRenderer.cmdBuf = commandBuffer;
         gpuRenderer.renderFrame(
           renderPass,
           texture: texture,
+          initialDepthStencilTexture: depthStencilTexture,
           logicalWidth: logicalWidth.toDouble(),
           logicalHeight: logicalHeight.toDouble(),
         );
