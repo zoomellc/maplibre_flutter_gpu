@@ -92,7 +92,7 @@ jobs:
           disable-animations: true
           emulator-options: >-
             -no-window
-            -gpu swiftshader
+            -gpu software
             -feature -Vulkan
             -no-snapshot
             -noaudio

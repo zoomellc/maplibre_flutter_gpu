@@ -106,10 +106,11 @@ cp e2e/visual/ci/android-visual-parity.yml \
 ```
 
 The job uses JDK 21 and one API 36 `x86_64` emulator from the stable channel
-with the SwiftShader OpenGL ES backend and Vulkan disabled, then uploads the
-report even when the similarity gate fails. The Actions job summary shows the
-comparison metrics and links to the downloadable artifact, which contains the
-self-contained HTML report, both screenshots, the diff, and capture logs.
+with the emulator's current software-rendering backend and Vulkan disabled,
+then uploads the report even when the similarity gate fails. The Actions job
+summary shows the comparison metrics and links to the downloadable artifact,
+which contains the self-contained HTML report, both screenshots, the diff, and
+capture logs.
 The GPU fixture also selects Impeller's OpenGL ES backend explicitly in debug
 and profile builds so emulator runs cannot auto-select Vulkan.
 Both integration-test APKs are built before the emulator starts. The capture
