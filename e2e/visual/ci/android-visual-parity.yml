@@ -92,8 +92,7 @@ jobs:
           disable-animations: true
           emulator-options: >-
             -no-window
-            -gpu swangle
-            -feature -Vulkan
+            -gpu swiftshader
             -no-snapshot
             -noaudio
             -no-boot-anim

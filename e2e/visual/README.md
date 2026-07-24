@@ -106,13 +106,12 @@ cp e2e/visual/ci/android-visual-parity.yml \
 ```
 
 The job uses JDK 21 and one API 36 `x86_64` emulator from the stable channel
-with SwiftShader's ANGLE-backed software renderer and guest Vulkan disabled.
-It uploads the report even when the similarity gate fails. The Actions job
-summary shows the comparison metrics and links to the downloadable artifact,
-which contains the self-contained HTML report, both screenshots, the diff, and
-capture logs.
-The GPU fixture also selects Impeller's OpenGL ES backend explicitly in debug
-and profile builds so emulator runs cannot auto-select Vulkan.
+with SwiftShader graphics and Vulkan available to the guest. It uploads the
+report even when the similarity gate fails. The Actions job summary shows the
+comparison metrics and links to the downloadable artifact, which contains the
+self-contained HTML report, both screenshots, the diff, and capture logs.
+The GPU fixture leaves Impeller backend selection at Flutter's default, allowing
+Vulkan when supported by the emulator.
 Both integration-test APKs are built before the emulator starts. The capture
 step reuses those APKs after stopping Gradle daemons, keeping build memory and
 the emulator's graphics process from competing on the CI runner.
