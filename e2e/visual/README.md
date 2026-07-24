@@ -105,7 +105,7 @@ cp e2e/visual/ci/android-visual-parity.yml \
   .github/workflows/android-visual-parity.yml
 ```
 
-The job uses JDK 21 and one API 36 `x86_64` emulator from the stable channel
+The job uses JDK 21 and one API 35 `x86_64` emulator from the stable channel
 with SwiftShader graphics and Vulkan available to the guest. It uploads the
 report even when the similarity gate fails. The Actions job summary shows the
 comparison metrics and links to the downloadable artifact, which contains the
